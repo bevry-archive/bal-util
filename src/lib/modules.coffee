@@ -44,8 +44,12 @@ balUtilModules =
 
 		# Execute command
 		if balUtilTypes.isArray(command)
-			pid = spawn(command[0], command.slice(1), opts)
+			if (isWindows)
+				pid = spawn('cmd', ['/c', command.join(' ')], opts)
+			else
+				pid = spawn(command[0], command.slice(1), opts)
 		else
+			# TODO: fix for this case as well
 			pid = spawn(command.command, command.args or [], command.options or opts)
 
 		# Fetch
