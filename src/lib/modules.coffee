@@ -7,17 +7,21 @@ balUtilTypes = require(__dirname+'/types')
 # Prepare
 isWindows = process? and process.platform.indexOf('win') is 0
 
-# Create a counter of all the open files we have
-# As the filesystem will throw a fatal error if we have too many open files
-global.numberOfOpenProcesses ?= 0
-global.maxNumberOfOpenProcesses ?= process.env.NODE_MAX_OPEN_PROCESSES ? 30
-global.waitingToOpenProcessDelay ?= 100
-
 
 # =====================================
 # Paths
 
 balUtilModules =
+
+	# =====================================
+	# Local Globals
+
+	# Create a counter of all the open files we have
+	# As the filesystem will throw a fatal error if we have too many open files
+	numberOfOpenProcesses: 0
+	maxNumberOfOpenProcesses: process.env.NODE_MAX_OPEN_PROCESSES ? 30
+	waitingToOpenProcessDelay: 100
+
 
 	# =================================
 	# Environments
@@ -37,22 +41,22 @@ balUtilModules =
 	# Open a process
 	# Pass your callback to fire when it is safe to open the process
 	openProcess: (next) ->
-		if global.numberOfOpenProcesses < 0
-			throw new Error("balUtilModules.openProcess: the numberOfOpenProcesses is [#{global.numberOfOpenProcesses}] which should be impossible...")
-		if global.numberOfOpenProcesses >= global.maxNumberOfOpenProcesses
+		if balUtilModules.numberOfOpenProcesses < 0
+			throw new Error("balUtilModules.openProcess: the numberOfOpenProcesses is [#{balUtilModules.numberOfOpenProcesses}] which should be impossible...")
+		if balUtilModules.numberOfOpenProcesses >= balUtilModules.maxNumberOfOpenProcesses
 			setTimeout(
 				-> balUtilModules.openProcess(next)
-				global.waitingToOpenProcessDelay
+				balUtilModules.waitingToOpenProcessDelay
 			)
 		else
-			++global.numberOfOpenProcesses
+			++balUtilModules.numberOfOpenProcesses
 			next()
 		@
 
 	# Close a process
 	# Call this once you are done with that process
 	closeProcess: (next) ->
-		--global.numberOfOpenProcesses
+		--balUtilModules.numberOfOpenProcesses
 		next?()
 		@
 
@@ -716,7 +720,7 @@ balUtilModules =
 				balUtilModules.gitCommand(['pull',remote,branch], opts, next)
 			else
 				balUtilModules.initGitRepo(opts, next)
-		
+
 		# Chain
 		@
 

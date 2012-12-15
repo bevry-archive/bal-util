@@ -4,17 +4,24 @@ pathUtil = require('path')
 balUtilFlow = require(__dirname+'/flow')
 balUtilTypes = require(__dirname+'/types')
 
-# Create a counter of all the open files we have
-# As the filesystem will throw a fatal error if we have too many open files
-global.numberOfOpenFiles ?= 0
-global.maxNumberOfOpenFiles ?= process.env.NODE_MAX_OPEN_FILES ? 100
-global.waitingToOpenFileDelay ?= 100
-
 
 # =====================================
 # Paths
 
 balUtilPaths =
+
+	# =====================================
+	# Local Globals
+
+	# Create a counter of all the open files we have
+	# As the filesystem will throw a fatal error if we have too many open files
+	numberOfOpenFiles: 0
+	maxNumberOfOpenFiles: process.env.NODE_MAX_OPEN_FILES ? 100
+	waitingToOpenFileDelay: 100
+
+	# Allow the user to add their own custom ignore patterns
+	customIgnorePatterns: process.env.NODE_COMMON_IGNORE_PATTERNS ? null
+
 
 	# =====================================
 	# Open and Close Files
@@ -25,22 +32,22 @@ balUtilPaths =
 	# Open a file
 	# Pass your callback to fire when it is safe to open the file
 	openFile: (next) ->
-		if global.numberOfOpenFiles < 0
-			throw new Error("balUtilPaths.openFile: the numberOfOpenFiles is [#{global.numberOfOpenFiles}] which should be impossible...")
-		if global.numberOfOpenFiles >= global.maxNumberOfOpenFiles
+		if balUtilPaths.numberOfOpenFiles < 0
+			throw new Error("balUtilPaths.openFile: the numberOfOpenFiles is [#{balUtilPaths.numberOfOpenFiles}] which should be impossible...")
+		if balUtilPaths.numberOfOpenFiles >= balUtilPaths.maxNumberOfOpenFiles
 			setTimeout(
 				-> balUtilPaths.openFile(next)
-				global.waitingToOpenFileDelay
+				balUtilPaths.waitingToOpenFileDelay
 			)
 		else
-			++global.numberOfOpenFiles
+			++balUtilPaths.numberOfOpenFiles
 			next()
 		@
 
 	# Close a file
 	# Call this once you are done with that file
 	closeFile: (next) ->
-		--global.numberOfOpenFiles
+		--balUtilPaths.numberOfOpenFiles
 		next?()
 		@
 
@@ -450,11 +457,12 @@ balUtilPaths =
 		^(
 			# Paths that start with something
 			(
-				~
+				~|			# vim, gedit, etc
+				\.\#		# emacs
 			).*|
 			# Paths that end with something
 			.*(
-				\.swp
+				\.swp		# vi
 			)|
 			# Paths that start with a dot and end with something
 			\.(
@@ -470,6 +478,21 @@ balUtilPaths =
 			desktop\.ini
 		)$
 		///i
+
+	# Test Ignore Pattern
+	# opts={commonIgnorePatterns,customIgnorePatterns}
+	testIgnorePattern: (path,opts={}) ->
+		# Prepare
+		basename = pathUtil.basename(path)
+		opts.commonIgnorePatterns ?= balUtilPaths.commonIgnorePatterns
+		opts.customIgnorePatterns ?= null
+
+		# Test
+		result = (!opts.commonIgnorePatterns or opts.commonIgnorePatterns.test(basename)) and (!opts.customIgnorePatterns or opts.customIgnorePatterns.test(basename))
+
+		# Return
+		return result
+
 
 	# Recursively scan a directory
 	# Usage:
@@ -488,8 +511,12 @@ balUtilPaths =
 	#	recurse: null, or a boolean for whether or not to scan subdirectories too
 	#	readFiles: null, or a boolean for whether or not we should read the file contents
 	#	ignoreHiddenFiles: null, or a boolean for if we should ignore files starting with a dot
-	#	ignorePatterns: null, or true (if true will use balUtilPaths.commonIgnorePatterns),
-	#		or a regex to match paths against to determine if we should ignore them
+	#	ignorePatterns: null, boolean, or regex
+	#		if null, becomes true
+	#		if false, does not do any ignore patterns
+	#		if true, defaults to balUtilPaths.commonIgnorePatterns
+	#		if regex, uses this value instead of balUtilPaths.commonIgnorePatterns
+	#	customIgnorePatterns: null, boolean, or regex (same as ignorePatterns but for customIgnorePatterns instead)
 	# Next Callback Arguments:
 	#	err: null, or an error that has occured
 	#	list: a collection of all the child nodes in a list/object format:
@@ -568,7 +595,10 @@ balUtilPaths =
 			else files.forEach (file) ->
 				# Check
 				isHiddenFile = options.ignoreHiddenFiles and /^\./.test(file)
-				isIgnoredFile = options.ignorePatterns and options.ignorePatterns.test(file)
+				isIgnoredFile = balUtilPaths.testIgnorePattern(file,{
+					commonIgnorePatterns: options.ignorePatterns
+					customIgnorePatterns: options.customIgnorePatterns
+				})
 				if isHiddenFile or isIgnoredFile
 					return tasks.complete()
 

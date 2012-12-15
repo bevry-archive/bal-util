@@ -1,5 +1,13 @@
 ## History
 
+- v1.15.0 Unreleased
+	- `balUtilPaths` changes:
+		- global changes
+		- added `testIgnorePattern`
+		- added `customIgnorePattern` option to `scandir`
+	- `balUtilModules` changes:
+		- global changes
+
 - v1.14.1 December 14, 2012
 	- `balUtilModules` changes:
 		- Added `getExecPath` that will fetch an executable path based on the paths within the environment `PATH` variable
