@@ -126,7 +126,7 @@ balUtilModules =
 				stderr += data.toString()
 
 			# Wait
-			pid.on 'exit', (code,signal) ->
+			pid.on 'close', (code,signal) ->
 				err = null
 				if code isnt 0
 					err = new Error(stderr or 'exited with a non-zero status code')

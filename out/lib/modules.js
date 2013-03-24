@@ -121,7 +121,7 @@
           }
           return stderr += data.toString();
         });
-        pid.on('exit', function(code, signal) {
+        pid.on('close', function(code, signal) {
           err = null;
           if (code !== 0) {
             err = new Error(stderr || 'exited with a non-zero status code');
