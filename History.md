@@ -1,5 +1,9 @@
 ## History
 
+- v2.2.0 June 24, 2013
+	- Split out `balUtilModules` into [safeps](https://github.com/bevry/safeps)
+	- Split out `balUtilFlow.extractOptsAndCallback` into [extract-opts](https://github.com/bevry/extract-opts)
+
 - v2.1.0 May 25, 2013
 	- `balUtilEvent` changes:
 		- Event listeners can now have priorities. Highest priorities run first. Set them by `listener.priority = 500`

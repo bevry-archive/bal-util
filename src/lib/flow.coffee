@@ -13,31 +13,6 @@ balUtilFlow =
 	wait: (delay,fn) ->
 		setTimeout(fn,delay)
 
-	# Extract the correct options and completion callback from the passed arguments
-	extractOptsAndCallback: (opts,next,config={}) ->
-		# Prepare
-		config.completionCallbackNames ?= ['next']
-
-		# Arguments
-		if typeChecker.isFunction(opts) and next? is false
-			next = opts
-			opts = {}
-		else
-			opts or= {}
-
-		# Completion callback
-		unless next
-			for completionCallbackName in config.completionCallbackNames
-				next = opts[completionCallbackName]
-				break  if next
-
-
-		# Ensure
-		next or= null
-
-		# Return
-		return [opts,next]
-
 	# Flow through a series of actions on an object
 	# next(err)
 	flow: (args...) ->

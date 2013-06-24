@@ -5,7 +5,6 @@ balUtil = require('extendr').extend(
 	require('./events')
 	require('./flow')
 	require('./html')
-	require('./modules')
 	require('./paths')
 )
 
