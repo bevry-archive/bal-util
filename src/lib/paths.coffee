@@ -4,6 +4,7 @@ eachr = require('eachr')
 typeChecker = require('typechecker')
 extendr = require('extendr')
 safefs = require('safefs')
+{extractOptsAndCallback} = require('extract-opts')
 {TaskGroup} = require('taskgroup')
 balUtilFlow = require('./flow')
 
@@ -715,7 +716,7 @@ balUtilPaths =
 	# Reads a path be it local or remote
 	# next(err,data)
 	readPath: (filePath,opts,next) ->
-		[opts,next] = balUtilFlow.extractOptsAndCallback(opts,next)
+		[opts,next] = extractOptsAndCallback(opts,next)
 
 		# Request
 		if /^http/.test(filePath)
