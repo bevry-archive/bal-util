@@ -1,60 +1,6 @@
 # Import
 EventEmitter = require('events').EventEmitter
-ambi = require('ambi')
-{TaskGroup} = require('taskgroup')
 typeChecker = require('typechecker')
-
-
-# =====================================
-# EventEmitterEnhanced
-# Extends the standard EventEmitter with support for:
-# - support for emitting events both async and sync
-
-class EventEmitterEnhanced extends EventEmitter
-
-	# Get Listener Group
-	# Fetch the listeners for a particular event as a task group
-	getListenerGroup: (eventName,data,next) ->
-		# Get listeners
-		me = @
-		listeners = @listeners(eventName)
-
-		# Prepare tasks
-		tasks = new TaskGroup().once('complete',next)
-
-		# Sort the listeners by highest priority first
-		listeners.sort (a,b) ->
-			return (b.priority or 0) - (a.priority or 0)
-
-		# Add the tasks for the listeners
-		listeners.forEach (listener) ->
-			# Once will actually wrap around the original listener, which isn't what we want for the introspection
-			# So we must pass fireWithOptionalCallback an array of the method to fire, and the method to introspect
-			# https://github.com/bevry/docpad/issues/462
-			# https://github.com/joyent/node/commit/d1b4dcd6acb1d1c66e423f7992dc6eec8a35c544
-			if listener.listener
-				listener = [listener.bind(me), listener.listener]
-			else
-				listener = listener.bind(me)
-
-			# Bind to the task
-			tasks.addTask (complete) ->
-				# Fire the listener, treating the callback as optional
-				ambi(listener, data, complete)
-
-		# Return
-		return tasks
-
-	# Off
-	off: (args...) -> @removeListener(args...)
-
-	# Emit Serial
-	emitSync: (args...) -> @emitSerial(args...)
-	emitSerial: (args...) -> @getListenerGroup(args...).run()
-
-	# Emit Parallel
-	emitAsync: (args...) -> @emitParallel(args...)
-	emitParallel: (args...) -> @getListenerGroup(args...).setConfig({concurrency:0}).run()
 
 
 # =====================================
@@ -75,7 +21,7 @@ class Event
 	constructor: ({@name}) ->
 
 # EventSystem
-class EventSystem extends EventEmitterEnhanced
+class EventSystem extends EventEmitter
 	# Event store
 	# initialised in our event function to prevent javascript reference problems
 	_eventSystemEvents: null
@@ -295,4 +241,4 @@ class EventSystem extends EventEmitterEnhanced
 # =====================================
 # Export
 
-module.exports = {EventEmitterEnhanced,Event,EventSystem}
+module.exports = {Event,EventSystem}
