@@ -1,5 +1,8 @@
 ## History
 
+- v2.3.1 October 27, 2013
+	- Updated dependencies
+
 - v2.3.0 July 12, 2013
 	- Split out `balUtilEvents.EventEmitterEnhanced` into [event-emitter-grouped](https://github.com/bevry/event-emitter-grouped)
 
