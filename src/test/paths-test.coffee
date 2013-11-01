@@ -12,16 +12,17 @@ srcPath = __dirname+'/src'
 outPath = __dirname+'/out'
 nonPath = __dirname+'/asd'
 writetree =
-	'index.html': '<html>'
 	'blog':
 		'post1.md': 'my post'
 		'post2.md': 'my post2'
 	'styles':
-		'style.css': 'blah'
 		'themes':
 			'balupton':
 				'style.css': 'body { display:none; }'
 			'style.css': 'blah'
+		'style.css': 'blah'
+	'index.html': '<html>'
+
 ###
 scantree =
 	'index.html': true
@@ -129,7 +130,7 @@ joe.describe 'paths', (describe,it) ->
 		it 'should write the files correctly', (done) ->
 			balUtil.scantree srcPath, (err,scantree) ->
 				return done(err)  if err
-				assert.deepEqual(scantree,writetree)
+				assert.deepEqual(scantree, writetree)
 				done()
 
 	# Test cpdir

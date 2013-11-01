@@ -507,9 +507,9 @@ balUtilPaths =
 									return complete(err)  if err
 
 									# Append
-									dataString = data.toString()
-									list[fileRelativePath] = dataString
-									tree[file] = dataString
+									data = data.toString()  unless opts.readFiles is 'binary'
+									list[fileRelativePath] = data
+									tree[file] = data
 
 									# Done
 									return complete()
