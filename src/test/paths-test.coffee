@@ -111,6 +111,14 @@ joe.describe 'paths', (describe,it) ->
 				resultActual = balUtil.testIgnorePatterns(str)
 				assert.equal(resultActual, resultExpected)
 
+	# Test isIgnoredPath
+	describe 'isIgnoredPath', (describe,it) ->
+		# ignoreCustomPatterns option
+		describe 'ignoreCustomPatterns option', (describe,it) ->
+			it 'should match the full path', (done) ->
+				assert.ok(balUtil.isIgnoredPath 'foo/build/bar.tmp', { ignoreCustomPatterns: /\/build\/.+\.tmp/ })
+				done()
+
 	# Test rmdir
 	describe 'rmdir', (describe,it) ->
 		it 'should fail gracefully when the directory does not exist', (done) ->

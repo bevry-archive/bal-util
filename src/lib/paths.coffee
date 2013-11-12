@@ -322,7 +322,7 @@ balUtilPaths =
 			result or
 			(opts.ignoreHiddenFiles    and /^\./.test(basename)) or
 			(opts.ignoreCommonPatterns and opts.ignoreCommonPatterns.test(basename)) or
-			(opts.ignoreCustomPatterns and opts.ignoreCustomPatterns.test(basename)) or
+			(opts.ignoreCustomPatterns and opts.ignoreCustomPatterns.test(path)) or
 			false
 
 		# Return
@@ -421,7 +421,7 @@ balUtilPaths =
 						file
 
 				# Check
-				isIgnoredFile = balUtilPaths.isIgnoredPath(fileFullPath,{
+				isIgnoredFile = balUtilPaths.isIgnoredPath(fileRelativePath,{
 					ignorePaths: opts.ignorePaths
 					ignoreHiddenFiles: opts.ignoreHiddenFiles
 					ignoreCommonPatterns: opts.ignoreCommonPatterns
