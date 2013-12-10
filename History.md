@@ -1,5 +1,15 @@
 # History
 
+- v2.4.0 December 10, 2013
+	- `balUtilPaths` changes:
+		- Added `resolveCaseSensitivePath(path, next)`
+	- Extracted out:
+		- [binaryextensions](https://github.com/bevry/binaryextensions) < `balUtilPaths.binaryExtensions`
+		- [ignorefs](https://github.com/bevry/ignorefs) < `balUtilPaths.isIgnoredPath`
+		- [ignorepatterns](https://github.com/bevry/ignorepatterns/blob/master/HISTORY.md) < `balUtilPaths.ignoreCommonPatterns`
+		- [istextorbinary](https://github.com/bevry/istextorbinary) < `balUtilPaths.(isTextSync|isText|getEncodingSync|getEncoding)`
+		- [textextensions](https://github.com/bevry/textextensions) < `balUtilPaths.textExtensions`
+
 - v2.3.2 November 1, 2013
 	- Can now pass `binary` as the `readFiles` option value to return buffers instead of strings for file contents
 	- Updated dependencies

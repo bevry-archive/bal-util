@@ -1,7 +1,7 @@
 {
   "title": "[Benjamin Lupton's](http://balupton.com) Utility Functions",
   "name": "bal-util",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "description": "Common utility functions for Node.js used and maintained by Benjamin Lupton",
   "homepage": "https://github.com/balupton/bal-util",
   "license": {
@@ -35,7 +35,7 @@
     "comparison",
     "html"
   ],
-  "author": "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
+  "author": "2011+ Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
   "maintainers": [
     "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
   ],
@@ -60,7 +60,8 @@
     "safefs": "~3.0.1",
     "taskgroup": "~3.3.0",
     "typechecker": "~2.0.8",
-    "extract-opts": "~2.2.0"
+    "extract-opts": "~2.2.0",
+    "ignorefs": "~1.0.0"
   },
   "devDependencies": {
     "coffee-script": "~1.6.2",

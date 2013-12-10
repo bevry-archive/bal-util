@@ -48,15 +48,20 @@ Best off looking at source, it's well documented, and there are plenty of tests
 We're in the process of abstracting the pieces of bal-util out into their own modules. So far, we've done the following:
 
 - [ambi](https://github.com/bevry/ambi) < `balUtilFlow.fireWithOptionalCallback`
+- [binaryextensions](https://github.com/bevry/binaryextensions) < `balUtilPaths.binaryExtensions`
 - [eachr](https://github.com/bevry/eachr) < `balUtilFlow.each`
 - [event-emitter-grouped](https://github.com/bevry/event-emitter-grouped) < `balUtilEvents.EventEmitterEnhanced`
 - [extendr](https://github.com/bevry/extendr) < `balUtilFlow.(extend|clone|etc)`
 - [extract-opts](https://github.com/bevry/extract-opts) < `balUtilFlow.extractOptsAndCallback`
 - [getsetdeep](https://github.com/bevry/getsetdeep) < `balUtilFlow.(get|set)Deep`
+- [ignorefs](https://github.com/bevry/ignorefs) < `balUtilPaths.isIgnoredPath`
+- [ignorepatterns](https://github.com/bevry/ignorepatterns/blob/master/HISTORY.md) < `balUtilPaths.ignoreCommonPatterns`
+- [istextorbinary](https://github.com/bevry/istextorbinary) < `balUtilPaths.(isTextSync|isText|getEncodingSync|getEncoding)`
 - [safecallback](https://github.com/bevry/safecallback) < `balUtilFlow.safeCallback`
 - [safefs](https://github.com/bevry/safefs) < `balUtilPaths.(openFile|closeFile|etc)`
 - [safeps](https://github.com/bevry/safeps) < `balUtilModules`
 - [taskgroup](https://github.com/bevry/taskgroup) < `balUtilFlow.Group`
+- [textextensions](https://github.com/bevry/textextensions) < `balUtilPaths.textExtensions`
 - [typechecker](https://github.com/bevry/typechecker) < `balUtilTypes`
 
 
@@ -113,7 +118,7 @@ These amazing people have contributed code to this project:
 
 Licensed under the incredibly [permissive](http://en.wikipedia.org/wiki/Permissive_free_software_licence) [MIT license](http://creativecommons.org/licenses/MIT/)
 
-Copyright &copy; Benjamin Lupton <b@lupton.cc> (http://balupton.com)
+Copyright &copy; 2011+ Benjamin Lupton <b@lupton.cc> (http://balupton.com)
 
 <!-- /LICENSE -->
 

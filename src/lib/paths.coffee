@@ -7,202 +7,35 @@ safefs = require('safefs')
 {extractOptsAndCallback} = require('extract-opts')
 {TaskGroup} = require('taskgroup')
 balUtilFlow = require('./flow')
+ignorefs = require('ignorefs')
 
 # Define
 balUtilPaths =
 
-	# =================================
-	# Locals
-
-	# Common Ignore Patterns
-	# These are files are directories commonly ignored when it comes with dealing with paths
-	ignoreCommonPatterns:  process.env.NODE_IGNORE_COMMON_PATTERNS ? ///
-		^(
-			# Paths that start with something
-			(
-				~|          # vim, gedit, etc
-				\.\#        # emacs
-			).*|
-			# Paths that end with something
-			.*(
-				\.swp       # vi
-			)|
-			# Paths that start with a dot and end with something
-			\.(
-				svn|
-				git|
-				hg|
-				DS_Store
-			)|
-			# Paths that match any of the following
-			node_modules|
-			CVS|
-			thumbs\.db|
-			desktop\.ini
-		)$
-		///i
-
-	# Allow the user to add their own custom ignore patterns
-	ignoreCustomPatterns: process.env.NODE_IGNORE_CUSTOM_PATTERNS ? null
-
-	# Text Extensions
-	textExtensions: [
-		'c'
-		'coffee'
-		'coffeekup'
-		'cson'
-		'css'
-		'eco'
-		'haml'
-		'hbs'
-		'htaccess'
-		'htm'
-		'html'
-		'jade'
-		'js'
-		'json'
-		'less'
-		'md'
-		'php'
-		'phtml'
-		'py'
-		'rb'
-		'rtf'
-		'sass'
-		'scss'
-		'styl'
-		'stylus'
-		'text'
-		'txt'
-		'xml'
-		'yaml'
-	].concat (process.env.TEXT_EXTENSIONS or '').split(/[\s,]+/)
-
-	# Binary Extensions
-	binaryExtensions: [
-		'dds'
-		'eot'
-		'gif'
-		'ico'
-		'jar'
-		'jpeg'
-		'jpg'
-		'pdf'
-		'png'
-		'swf'
-		'tga'
-		'ttf'
-		'zip'
-	].concat (process.env.BINARY_EXTENSIONS or '').split(/[\s,]+/)
-
-
-
-	# =====================================
-	# Encoding
-
-	# Is Text
-	# Determine whether or not a file is a text or binary file
-	# determined by extension checks first
-	# if unknown extension, then fallback on encoding detection
-	# we do this as encoding detection cannot guarantee everything
-	# especially for chars between utf8 and utf16
-	isTextSync: (filename,buffer) ->
-		# Prepare
-		isText = null
-
-		# Test extensions
-		if filename
-			# Extract filename
-			filename = pathUtil.basename(filename).split('.')
-			# Cycle extensions
-			for extension in filename
-				if extension in balUtilPaths.textExtensions
-					isText = true
-					break
-				if extension in balUtilPaths.binaryExtensions
-					isText = false
-					break
-
-		# Fallback to encoding if extension check was not enough
-		if buffer and isText is null
-			isText = balUtilPaths.getEncodingSync(buffer) is 'utf8'
-
-		# Return our result
-		return isText
-
-	# Get the encoding of a buffer
-	isText: (filename,buffer,next) ->
-		# Fetch and wrap result
-		result = @isTextSync(filename,buffer)
-		if result instanceof Error
-			next(err)
-		else
-			next(null,result)
-
-		# Chain
-		@
-
-
-	# Get the encoding of a buffer
-	# We fetch a bunch chars from the start, middle and end of the buffer
-	# we check all three, as doing only start was not enough, and doing only middle was not enough
-	# so better safe than sorry
-	getEncodingSync: (buffer,opts) ->
-		# Prepare
-		textEncoding = 'utf8'
-		binaryEncoding = 'binary'
-
-		# Discover
-		unless opts?
-			# Start
-			chunkLength = 24
-			encoding = balUtilPaths.getEncodingSync(buffer,{chunkLength,chunkBegin})
-			if encoding is textEncoding
-				# Middle
-				chunkBegin = Math.max(0, Math.floor(buffer.length/2)-chunkLength)
-				encoding = balUtilPaths.getEncodingSync(buffer,{chunkLength,chunkBegin})
-				if encoding is textEncoding
-					# End
-					chunkBegin = Math.max(0, buffer.length-chunkLength)
-					encoding = balUtilPaths.getEncodingSync(buffer,{chunkLength,chunkBegin})
-		else
-			# Extract
-			{chunkLength,chunkBegin} = opts
-			chunkLength ?= 24
-			chunkBegin ?= 0
-			chunkEnd = Math.min(buffer.length, chunkBegin+chunkLength)
-			contentChunkUTF8 = buffer.toString(textEncoding,chunkBegin,chunkEnd)
-			encoding = textEncoding
-
-			# Detect encoding
-			for i in [0...contentChunkUTF8.length]
-				charCode = contentChunkUTF8.charCodeAt(i)
-				if charCode is 65533 or charCode <= 8
-					# 8 and below are control characters (e.g. backspace, null, eof, etc.)
-					# 65533 is the unknown character
-					# console.log(charCode, contentChunkUTF8[i])
-					encoding = binaryEncoding
-					break
-
-		# Return encoding
-		return encoding
-
-	# Get the encoding of a buffer
-	getEncoding: (buffer,opts,next) ->
-		# Fetch and wrap result
-		result = @getEncodingSync(buffer,opts)
-		if result instanceof Error
-			next(err)
-		else
-			next(null,result)
-
-		# Chain
-		@
-
-
 
 	# =====================================
 	# Our Extensions
+
+	# Resolve a Case Sensitive Path
+	# next(err, result)
+	resolveCaseSensitivePath: (path, next) ->
+		# Resolve the parent path
+		parentPath = safefs.getParentPathSync(path) or '/'
+		return next(null, parentPath)  if parentPath is '/'
+		safefs.resolveCaseSensitivePath parentPath, (err, parentPath) ->
+			safefs.readdir parentPath, (err, files) ->
+				return next(err)  if err
+
+				relativePathLowerCase = relativePath.toLowerCase()
+				for file in files
+					if file.toLowerCase() is relativePathLowerCase
+						return next(null, pathUtil.join(parentPath, relativePath))
+
+				err = new Error("Could not find the path #{relativePath} inside #{parentPath}")
+				return next(err)
+
+		# Chain
+		safefs
 
 	# Copy a file
 	# Or rather overwrite a file, regardless of whether or not it was existing before
@@ -290,45 +123,6 @@ balUtilPaths =
 		# Chain
 		@
 
-	# Test Ignore Patterns
-	# alias for isIgnoredPath
-	testIgnorePatterns: (args...) ->
-		return @isIgnoredPath(args...)
-
-	# Is Ignored Path
-	# opts={ignorePaths,ignoreHiddenFiles,ignoreCommonPatterns,ignoreCustomPatterns}
-	isIgnoredPath: (path,opts={}) ->
-		# Prepare
-		result = false
-		basename = pathUtil.basename(path)
-		opts.ignorePaths ?= false
-		opts.ignoreHiddenFiles ?= false
-		opts.ignoreCommonPatterns ?= true
-		opts.ignoreCustomPatterns ?= false
-
-		# Fetch the common patterns to ignore
-		if opts.ignoreCommonPatterns is true
-			opts.ignoreCommonPatterns = balUtilPaths.ignoreCommonPatterns
-
-		# Test Ignore Paths
-		if opts.ignorePaths
-			for ignorePath in opts.ignorePaths
-				if path.indexOf(ignorePath) is 0
-					result = true
-					break
-
-		# Test Ignore Patterns
-		result =
-			result or
-			(opts.ignoreHiddenFiles    and /^\./.test(basename)) or
-			(opts.ignoreCommonPatterns and opts.ignoreCommonPatterns.test(basename)) or
-			(opts.ignoreCustomPatterns and opts.ignoreCustomPatterns.test(basename)) or
-			false
-
-		# Return
-		return result
-
-
 	# Recursively scan a directory
 	# Usage:
 	#	scandir(path,action,fileAction,dirAction,next)
@@ -350,8 +144,8 @@ balUtilPaths =
 	#	ignoreCommonPatterns: (default false) null, boolean, or regex
 	#		if null, becomes true
 	#		if false, does not do any ignore patterns
-	#		if true, defaults to balUtilPaths.ignoreCommonPatterns
-	#		if regex, uses this value instead of balUtilPaths.ignoreCommonPatterns
+	#		if true, defaults to bevry/ignorepatterns
+	#		if regex, uses this value instead of bevry/ignorepatterns
 	#	ignoreCustomPatterns: (default false) null, boolean, or regex (same as ignoreCommonPatterns but for ignoreCustomPatterns instead)
 	# Next Callback Arguments:
 	#	err: null, or an error that has occured
@@ -421,7 +215,7 @@ balUtilPaths =
 						file
 
 				# Check
-				isIgnoredFile = balUtilPaths.isIgnoredPath(fileFullPath,{
+				isIgnoredFile = ignorefs.isIgnoredPath(fileFullPath,{
 					ignorePaths: opts.ignorePaths
 					ignoreHiddenFiles: opts.ignoreHiddenFiles
 					ignoreCommonPatterns: opts.ignoreCommonPatterns
