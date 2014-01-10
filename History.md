@@ -1,5 +1,9 @@
 # History
 
+- v2.4.1 January 10, 2014
+	- Updated dependencies
+	- Repackaged
+
 - v2.4.0 December 10, 2013
 	- `balUtilPaths` changes:
 		- Added `resolveCaseSensitivePath(path, next)`
