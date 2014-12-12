@@ -1,5 +1,8 @@
 # History
 
+## v2.4.3 December 12, 2014
+- Fixed flow (regression since v2.4.2)
+
 ## v2.4.2 December 12, 2014
 - Updated dependencies
 

@@ -31,7 +31,7 @@ balUtilFlow =
 		# Create tasks group and cycle through it
 		actions ?= action.split(/[,\s]+/g)
 		object ?= null
-		tasks or= new TaskGroup().once('complete',next)
+		tasks or= new TaskGroup().done(next)
 		actions.forEach (action) -> tasks.addTask (complete) ->
 			# Prepare callback
 			argsClone = (args or []).slice()
