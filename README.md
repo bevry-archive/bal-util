@@ -40,7 +40,7 @@ Common utility functions for Node.js used and maintained by Benjamin Lupton
 ### [Browserify](http://browserify.org/)
 - Use: `require('bal-util')`
 - Install: `npm install --save bal-util`
-- CDN URL: `//wzrd.in/bundle/bal-util@2.4.2`
+- CDN URL: `//wzrd.in/bundle/bal-util@2.4.3`
 
 ### [Ender](http://ender.jit.su/)
 - Use: `require('bal-util')`
