@@ -114,7 +114,7 @@ joe.describe 'paths', (describe,it) ->
 		# Should decode gzip
 		describe 'gzip', (describe,it) ->
 			it 'should read gzipped paths', (done) ->
-				balUtil.readPath 'http://api.stackoverflow.com/1.0/users/130638/', (err,data) ->
+				balUtil.readPath 'https://api.stackexchange.com/2.2/users/130638?order=desc&sort=reputation&site=stackoverflow', (err,data) ->
 					# Check
 					if process.version.indexOf('v0.4') is 0
 						assert.ok(err?)

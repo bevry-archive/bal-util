@@ -61,7 +61,7 @@ balUtilHTML =
 			[html, element, replace, next] = args
 
 		# Prepare
-		tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+		tasks = new TaskGroup(concurrency:0).done (err) ->
 			return next(err)  if err
 			return next(null,result)
 

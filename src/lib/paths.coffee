@@ -201,7 +201,7 @@ balUtilPaths =
 			return next(null,list,tree)  if files.length is 0
 
 			# Group
-			tasks = new TaskGroup().setConfig(concurrency:0).once 'complete', (err) ->
+			tasks = new TaskGroup(concurrency:0).done (err) ->
 				return opts.next(err, list, tree)
 
 			# Cycle
@@ -489,7 +489,7 @@ balUtilPaths =
 			return next(err)  if err
 
 			# Group
-			tasks = new TaskGroup().setConfig(concurrency:0).once('complete',next)
+			tasks = new TaskGroup(concurrency:0).done(next)
 
 			# Cycle
 			eachr tree, (value,fileRelativePath) ->  tasks.addTask (complete) ->
@@ -516,7 +516,7 @@ balUtilPaths =
 		if /^http/.test(filePath)
 			# Prepare
 			data = ''
-			tasks = new TaskGroup().once 'complete', (err) ->
+			tasks = new TaskGroup().done (err) ->
 				return next(err)  if err
 				return next(null,data)
 
