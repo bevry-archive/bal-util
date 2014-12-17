@@ -8,6 +8,7 @@ safefs = require('safefs')
 {TaskGroup} = require('taskgroup')
 balUtilFlow = require('./flow')
 ignorefs = require('ignorefs')
+scandir = require('scandirectory')
 
 # Define
 balUtilPaths =
@@ -97,7 +98,7 @@ balUtilPaths =
 	# next(err,list)
 	scanlist: (path,next) ->
 		# Handle
-		balUtilPaths.scandir(
+		scandir(
 			path: path
 			readFiles: true
 			ignoreHiddenFiles: true
@@ -112,7 +113,7 @@ balUtilPaths =
 	# next(err,tree)
 	scantree: (path,next) ->
 		# Handle
-		balUtilPaths.scandir(
+		scandir(
 			path: path
 			readFiles: true
 			ignoreHiddenFiles: true
@@ -122,214 +123,6 @@ balUtilPaths =
 
 		# Chain
 		@
-
-	# Recursively scan a directory
-	# Usage:
-	#	scandir(path,action,fileAction,dirAction,next)
-	#	scandir(options)
-	# Options:
-	#	path: the path you want to read
-	#	action: (default null) null, or a function to use for both the fileAction and dirACtion
-	#	fileAction: (default null) null, or a function to run against each file, in the following format:
-	#		fileAction(fileFullPath,fileRelativePath,next(err,skip),fileStat)
-	#	dirAction: (default null) null, or a function to run against each directory, in the following format:
-	#		dirAction(fileFullPath,fileRelativePath,next(err,skip),fileStat)
-	#	next: (default null) null, or a function to run after the entire directory has been scanned, in the following format:
-	#		next(err,list,tree)
-	#	stat: (default null) null, or a file stat object for the path if we already have one (not actually used yet)
-	#	recurse: (default true) null, or a boolean for whether or not to scan subdirectories too
-	#	readFiles: (default false) null, or a boolean for whether or not we should read the file contents
-	#   ignorePaths: (default false) null, or an array of paths that we should ignore
-	#	ignoreHiddenFiles: (default false) null, or a boolean for if we should ignore files starting with a dot
-	#	ignoreCommonPatterns: (default false) null, boolean, or regex
-	#		if null, becomes true
-	#		if false, does not do any ignore patterns
-	#		if true, defaults to bevry/ignorepatterns
-	#		if regex, uses this value instead of bevry/ignorepatterns
-	#	ignoreCustomPatterns: (default false) null, boolean, or regex (same as ignoreCommonPatterns but for ignoreCustomPatterns instead)
-	# Next Callback Arguments:
-	#	err: null, or an error that has occured
-	#	list: a collection of all the child nodes in a list/object format:
-	#		{fileRelativePath: 'dir|file'}
-	#	tree: a colleciton of all the child nodes in a tree format:
-	#		{dir:{dir:{},file1:true}}
-	#		if the readFiles option is true, then files will be returned with their contents instead
-	scandir: (args...) ->
-		# Prepare
-		list = {}
-		tree = {}
-
-		# Arguments
-		if args.length is 1
-			opts = args[0]
-		else if args.length >= 4
-			opts =
-				path: args[0]
-				fileAction: args[1] or null
-				dirAction: args[2] or null
-				next: args[3] or null
-		else
-			err = new Error('balUtilPaths.scandir: unsupported arguments')
-			throw err
-
-		# Prepare defaults
-		opts.recurse ?= true
-		opts.readFiles ?= false
-		opts.ignorePaths ?= false
-		opts.ignoreHiddenFiles ?= false
-		opts.ignoreCommonPatterns ?= false
-		opts.next ?= (err) ->
-			throw err  if err
-		next = opts.next
-
-		# Action
-		if opts.action?
-			opts.fileAction ?= opts.action
-			opts.dirAction ?= opts.action
-
-		# Check needed
-		if opts.parentPath and !opts.path
-			opts.path = opts.parentPath
-		if !opts.path
-			err = new Error('balUtilPaths.scandir: path is needed')
-			return next(err)
-
-		# Cycle
-		safefs.readdir opts.path, (err,files) ->
-			# Checks
-			return next(err)  if err
-			return next(null,list,tree)  if files.length is 0
-
-			# Group
-			tasks = new TaskGroup(concurrency:0).done (err) ->
-				return opts.next(err, list, tree)
-
-			# Cycle
-			files.forEach (file) ->  tasks.addTask (complete) ->
-				# Prepare
-				fileFullPath = pathUtil.join(opts.path,file)
-				fileRelativePath =
-					if opts.relativePath
-						pathUtil.join(opts.relativePath,file)
-					else
-						file
-
-				# Check
-				isIgnoredFile = ignorefs.isIgnoredPath(fileFullPath,{
-					ignorePaths: opts.ignorePaths
-					ignoreHiddenFiles: opts.ignoreHiddenFiles
-					ignoreCommonPatterns: opts.ignoreCommonPatterns
-					ignoreCustomPatterns: opts.ignoreCustomPatterns
-				})
-				return complete()  if isIgnoredFile
-
-				# IsDirectory
-				balUtilPaths.isDirectory fileFullPath, (err,isDirectory,fileStat) ->
-					# Checks
-					return complete(err)  if err
-					return complete()     if tasks.paused
-
-					# Directory
-					if isDirectory
-						# Prepare
-						handle = (err,skip,subtreeCallback) ->
-							# Checks
-							return complete(err)  if err
-							return complete()     if tasks.paused
-							return complete()     if skip
-
-							# Append
-							list[fileRelativePath] = 'dir'
-							tree[file] = {}
-
-							# No Recurse
-							return complete()  unless opts.recurse
-
-							# Recurse
-							return balUtilPaths.scandir(
-								# Path
-								path: fileFullPath
-								relativePath: fileRelativePath
-
-								# Options
-								fileAction: opts.fileAction
-								dirAction: opts.dirAction
-								readFiles: opts.readFiles
-								ignorePaths: opts.ignorePaths
-								ignoreHiddenFiles: opts.ignoreHiddenFiles
-								ignoreCommonPatterns: opts.ignoreCommonPatterns
-								ignoreCustomPatterns: opts.ignoreCustomPatterns
-								recurse: opts.recurse
-								stat: opts.fileStat
-
-								# Completed
-								next: (err,_list,_tree) ->
-									# Merge in children of the parent directory
-									tree[file] = _tree
-									for own filePath, fileType of _list
-										list[filePath] = fileType
-
-									# Checks
-									return complete(err)  if err
-									return complete()     if tasks.paused
-									return subtreeCallback(complete)  if subtreeCallback
-									return complete()
-							)
-
-						# Action
-						if opts.dirAction
-							return opts.dirAction(fileFullPath, fileRelativePath, handle, fileStat)
-						else if opts.dirAction is false
-							return handle(err,true)
-						else
-							return handle(err,false)
-
-					# File
-					else
-						# Prepare
-						handle = (err,skip) ->
-							# Checks
-							return complete(err)  if err
-							return complete()     if tasks.paused
-							return complete()     if skip
-
-							# Append
-							if opts.readFiles
-								# Read file
-								safefs.readFile fileFullPath, (err,data) ->
-									# Check
-									return complete(err)  if err
-
-									# Append
-									data = data.toString()  unless opts.readFiles is 'binary'
-									list[fileRelativePath] = data
-									tree[file] = data
-
-									# Done
-									return complete()
-
-							else
-								# Append
-								list[fileRelativePath] = 'file'
-								tree[file] = true
-
-								# Done
-								return complete()
-
-						# Action
-						if opts.fileAction
-							return opts.fileAction(fileFullPath, fileRelativePath, handle, fileStat)
-						else if opts.fileAction is false
-							return handle(err,true)
-						else
-							return handle(err,false)
-
-			# Run the tasks
-			tasks.run()
-
-		# Chain
-		@
-
 
 	# Copy a directory
 	# If the same file already exists, we will keep the source one
@@ -377,7 +170,7 @@ balUtilPaths =
 			scandirOpts[opt] = opts[opt]
 
 		# Scan all the files in the diretory and copy them over asynchronously
-		balUtilPaths.scandir(scandirOpts)
+		scandir(scandirOpts)
 
 		# Chain
 		@
@@ -435,46 +228,7 @@ balUtilPaths =
 			scandirOpts[opt] = opts[opt]
 
 		# Scan all the files in the diretory and copy them over asynchronously
-		balUtilPaths.scandir(scandirOpts)
-
-		# Chain
-		@
-
-
-	# Remove a directory deeply
-	# next(err)
-	rmdirDeep: (parentPath,next) ->
-		safefs.exists parentPath, (exists) ->
-			# Skip
-			return next()  unless exists
-			# Remove
-			balUtilPaths.scandir(
-				# Path
-				parentPath
-
-				# File
-				(fileFullPath,fileRelativePath,next) ->
-					safefs.unlink fileFullPath, (err) ->
-						# Forward
-						return next(err)
-
-				# Dir
-				(fileFullPath,fileRelativePath,next) ->
-					next null, false, (next) ->
-						balUtilPaths.rmdirDeep fileFullPath, (err) ->
-							# Forward
-							return next(err)
-
-				# Completed
-				(err,list,tree) ->
-					# Error
-					if err
-						return next(err, list, tree)
-					# Success
-					safefs.rmdir parentPath, (err) ->
-						# Forward
-						return next(err, list, tree)
-			)
+		scandir(scandirOpts)
 
 		# Chain
 		@

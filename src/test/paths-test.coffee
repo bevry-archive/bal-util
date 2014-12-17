@@ -2,6 +2,7 @@
 {expect,assert} = require('chai')
 joe = require('joe')
 balUtil = require('../../')
+rimraf = require('rimraf')
 
 
 # =====================================
@@ -10,7 +11,6 @@ balUtil = require('../../')
 # Test Data
 srcPath = __dirname+'/src'
 outPath = __dirname+'/out'
-nonPath = __dirname+'/asd'
 writetree =
 	'blog':
 		'post1.md': 'my post'
@@ -43,11 +43,10 @@ scantree =
 
 joe.describe 'paths', (describe,it) ->
 
-	# Test rmdir
-	describe 'rmdir', (describe,it) ->
+	# Cleanup
+	describe 'cleanup', (describe,it) ->
 		it 'should fail gracefully when the directory does not exist', (done) ->
-			# rmdir
-			balUtil.rmdirDeep nonPath, (err) ->
+			rimraf outPath, (err) ->
 				assert.equal(err||null, null)
 				done()
 
@@ -78,25 +77,6 @@ joe.describe 'paths', (describe,it) ->
 				return done(err)  if err
 				assert.deepEqual(scantree,writetree)
 				done()
-
-	# Test rmdirDeep
-	describe 'rmdirDeep', (describe,it) ->
-		# Cleaup srcPath
-		it 'should clean up the srcPath', (done) ->
-			balUtil.rmdirDeep srcPath, (err) ->
-				return done(err)  if err
-				exists = require('fs').existsSync(srcPath)
-				assert.equal(exists,false)
-				done()
-
-		# Cleanup outPath
-		it 'should clean up the outPath', (done) ->
-			balUtil.rmdirDeep outPath, (err) ->
-				return done(err)  if err
-				exists = require('fs').existsSync(outPath)
-				assert.equal(exists,false)
-				done()
-
 
 	# Test readPath
 	describe 'readPath', (describe,it) ->

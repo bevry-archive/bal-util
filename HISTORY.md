@@ -1,5 +1,9 @@
 # History
 
+## v2.5.0 December 17, 2014
+- Abstracted out `balUtilPaths.scandir` to [scandirectory](https://github.com/bevry/scandirectory)
+- Removed `balUtilPaths.rmdirDeep` in favour of [rimraf](https://github.com/isaacs/rimraf)
+
 ## v2.4.3 December 12, 2014
 - Fixed flow (regression since v2.4.2)
 

@@ -40,7 +40,7 @@ Common utility functions for Node.js used and maintained by Benjamin Lupton
 ### [Browserify](http://browserify.org/)
 - Use: `require('bal-util')`
 - Install: `npm install --save bal-util`
-- CDN URL: `//wzrd.in/bundle/bal-util@2.4.3`
+- CDN URL: `//wzrd.in/bundle/bal-util@2.5.0`
 
 ### [Ender](http://ender.jit.su/)
 - Use: `require('bal-util')`
@@ -54,8 +54,8 @@ Best off looking at source, it's well documented, and there are plenty of tests
 
 
 
-## Future
-We're in the process of abstracting the pieces of bal-util out into their own modules. So far, we've done the following:
+## Abstraction
+We're working to breaking out every part of bal-util into their own modules, or to use existing modules where there is now a more abstract version. Below are the list of the following abstractions that have been made:
 
 - [ambi](https://github.com/bevry/ambi) < `balUtilFlow.fireWithOptionalCallback`
 - [binaryextensions](https://github.com/bevry/binaryextensions) < `balUtilPaths.binaryExtensions`
@@ -67,9 +67,11 @@ We're in the process of abstracting the pieces of bal-util out into their own mo
 - [ignorefs](https://github.com/bevry/ignorefs) < `balUtilPaths.isIgnoredPath`
 - [ignorepatterns](https://github.com/bevry/ignorepatterns/blob/master/HISTORY.md) < `balUtilPaths.ignoreCommonPatterns`
 - [istextorbinary](https://github.com/bevry/istextorbinary) < `balUtilPaths.(isTextSync|isText|getEncodingSync|getEncoding)`
+- [rimraf](https://github.com/isaacs/rimraf) < `balUtilPaths.rmdirDeep`
 - [safecallback](https://github.com/bevry/safecallback) < `balUtilFlow.safeCallback`
 - [safefs](https://github.com/bevry/safefs) < `balUtilPaths.(openFile|closeFile|etc)`
 - [safeps](https://github.com/bevry/safeps) < `balUtilModules`
+- [scandirectory](https://github.com/bevry/scandirectory) < `balUtilPaths.scandir`
 - [taskgroup](https://github.com/bevry/taskgroup) < `balUtilFlow.Group`
 - [textextensions](https://github.com/bevry/textextensions) < `balUtilPaths.textExtensions`
 - [typechecker](https://github.com/bevry/typechecker) < `balUtilTypes`
