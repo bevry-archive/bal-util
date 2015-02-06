@@ -1,5 +1,8 @@
 # History
 
+## v2.5.1 February 7, 2015
+- Updated dependencies
+
 ## v2.5.0 December 17, 2014
 - Abstracted out `balUtilPaths.scandir` to [scandirectory](https://github.com/bevry/scandirectory)
 - Removed `balUtilPaths.rmdirDeep` in favour of [rimraf](https://github.com/isaacs/rimraf)
