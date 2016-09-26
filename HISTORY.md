@@ -1,5 +1,10 @@
 # History
 
+## v2.6.0 2016 September 16
+- Rewrote `balUtilPaths.readPath` and added comprehensive tests for it
+- Updated dependencies
+- Changed engines to be node >= 0.12
+
 ## v2.5.1 2015 February 7
 - Updated dependencies
 

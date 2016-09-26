@@ -1,5 +1,5 @@
 # Import
-{expect,assert} = require('chai')
+{deepEqual} = require('assert-helpers')
 joe = require('joe')
 balUtil = require('../../')
 
@@ -18,5 +18,5 @@ joe.describe 'misc', (describe,it) ->
 		# Prepare
 		expected = ['ba','ca','da','ea']
 		actual = balUtil.suffixArray('a', 'b', ['c', 'd'], 'e')
-		assert.deepEqual(expected, actual, 'actual was as expected')
+		deepEqual(expected, actual, 'actual was as expected')
 		done()

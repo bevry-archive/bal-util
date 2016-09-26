@@ -1,5 +1,5 @@
 # Import
-{expect,assert} = require('chai')
+{equal} = require('assert-helpers')
 joe = require('joe')
 {EventSystem} = require('../../')
 debug = false
@@ -78,7 +78,7 @@ class Person extends EventSystem
 
 						# Resume eating
 						console.log "#{something}: unblocking eating"  if debug
-						@unblock 'eating', (err) =>
+						@unblock 'eating', (err) ->
 							console.log "#{something}: unblocked eating"  if debug
 							return done(err)  if err
 
@@ -146,9 +146,9 @@ joe.describe 'EventSystem', (describe,it) ->
 		# Async
 		setTimeout(
 			->
-				assert.equal(foods.length, foodsAte.length, 'myPerson ate all his foods')
-				assert.equal(drinks.length, drinksDrunk.length, 'myPerson ate all his drinks')
-				assert.equal(false, myPersonTriedToDrinkThenEat, 'myPerson tried to drink then eat, when he shouldn\'t have')
+				equal(foods.length, foodsAte.length, 'myPerson ate all his foods')
+				equal(drinks.length, drinksDrunk.length, 'myPerson ate all his drinks')
+				equal(false, myPersonTriedToDrinkThenEat, 'myPerson tried to drink then eat, when he shouldn\'t have')
 				done()
 			,14000
 		)

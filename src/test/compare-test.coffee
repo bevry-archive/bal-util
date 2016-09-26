@@ -1,5 +1,5 @@
 # Import
-{expect,assert} = require('chai')
+{equal} = require('assert-helpers')
 joe = require('joe')
 balUtil = require('../../')
 
@@ -33,7 +33,7 @@ joe.describe 'versionCompare', (describe,it) ->
 	# Handler
 	testVersion = (v1,operator,v2,resultExpected,resultActual) ->
 		it "should detect #{v1} #{operator} #{v2} is #{resultExpected}", ->
-			assert.equal(resultActual,resultExpected)
+			equal(resultActual, resultExpected)
 
 	# Run
 	for test in versionCompareTestData
@@ -59,7 +59,7 @@ joe.describe 'packageCompare', (describe,it) ->
 	# Handler
 	testVersion = (v1,operator,v2) ->
 		resultActual = balUtil.versionCompare(v1, operator, v2)
-		assert.equal(resultActual,true)
+		equal(resultActual, true)
 
 	# Run
 	it 'should run as expected', (done) ->

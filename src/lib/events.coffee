@@ -1,5 +1,5 @@
 # Import
-EventEmitter = require('events').EventEmitter
+{EventEmitter} = require('events')
 typeChecker = require('typechecker')
 
 

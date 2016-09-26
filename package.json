@@ -1,24 +1,10 @@
 {
-  "title": "[Benjamin Lupton's](http://balupton.com) Utility Functions",
+  "title": "[Benjamin Lupton's](https://balupton.com) Utility Functions",
   "name": "bal-util",
-  "version": "2.5.1",
+  "version": "2.6.0",
   "description": "Common utility functions for Node.js used and maintained by Benjamin Lupton",
   "homepage": "https://github.com/balupton/bal-util",
-  "license": {
-    "type": "MIT"
-  },
-  "badges": {
-    "travis": true,
-    "npm": true,
-    "npmdownloads": true,
-    "david": true,
-    "daviddev": true,
-    "gratipay": "balupton",
-    "flattr": "344188/balupton-on-Flattr",
-    "paypal": "QB8GQPZAH84N6",
-    "bitcoin": "https://coinbase.com/checkouts/9ef59f5479eec1d97d63382c9ebcb93a",
-    "wishlist": "http://amzn.com/w/2F8TXKSNAFG4V"
-  },
+  "license": "MIT",
   "keywords": [
     "javascript",
     "flow",
@@ -40,52 +26,106 @@
     "comparison",
     "html"
   ],
+  "badges": {
+    "list": [
+      "travisci",
+      "npmversion",
+      "npmdownloads",
+      "daviddm",
+      "daviddmdev",
+      "---",
+      "slackin",
+      "patreon",
+      "gratipay",
+      "flattr",
+      "paypal",
+      "bitcoin",
+      "wishlist"
+    ],
+    "config": {
+      "patreonUsername": "bevry",
+      "gratipayUsername": "bevry",
+      "flattrUsername": "balupton",
+      "paypalURL": "https://bevry.me/paypal",
+      "bitcoinURL": "https://bevry.me/bitcoin",
+      "wishlistURL": "https://bevry.me/wishlist",
+      "slackinURL": "https://slack.bevry.me"
+    }
+  },
   "author": "2011+ Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
   "maintainers": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)"
+    "Benjamin Lupton <b@lupton.cc> (http://balupton.com)"
   ],
   "contributors": [
-    "Benjamin Lupton <b@lupton.cc> (https://github.com/balupton)",
-    "Sean Fridman <fridman@mail.sfsu.edu> (https://github.com/sfrdmn)"
+    "Benjamin Lupton <b@lupton.cc> (http://balupton.com)",
+    "Sean Fridman <mail@seanfridman.com> (http://seanfridman.com)"
   ],
   "bugs": {
     "url": "https://github.com/balupton/bal-util/issues"
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/balupton/bal-util.git"
+    "url": "https://github.com/balupton/bal-util.git"
   },
   "engines": {
-    "node": ">=0.4"
+    "node": ">=0.12"
   },
-  "browsers": true,
+  "editions": [
+    {
+      "description": "Source + CoffeeScript + Require",
+      "entry": "src/lib/balutil.coffee",
+      "directory": "src",
+      "syntaxes": [
+        "coffeescript",
+        "require"
+      ]
+    },
+    {
+      "description": "CoffeeScript Compiled JavaScript + ES5 + Require",
+      "entry": "es5/lib/balutil.js",
+      "directory": "es5",
+      "syntaxes": [
+        "javascript",
+        "es5",
+        "require"
+      ]
+    }
+  ],
+  "main": "es5/lib/balutil.js",
+  "browser": "es5/lib/balutil.js",
+  "scripts": {
+    "setup": "npm install",
+    "compile": "npm run compile:coffeescript",
+    "compile:coffeescript": "coffee -bco ./es5 ./src",
+    "meta": "npm run meta:projectz",
+    "meta:projectz": "projectz compile",
+    "prepare": "npm run compile && npm run test && npm run meta",
+    "release": "npm run prepare && npm run release:publish && npm run release:tag && npm run release:push",
+    "release:publish": "npm publish",
+    "release:tag": "git tag v$npm_package_version -a",
+    "release:push": "git push origin master && git push origin --tags",
+    "pretest": "npm run test:coffeelint",
+    "test:coffeelint": "coffeelint ./src",
+    "test": "node --harmony ./es5/test/everything-test.js"
+  },
   "dependencies": {
-    "ambi": "^2.2.0",
-    "eachr": "^2.0.2",
-    "extendr": "^2.1.0",
-    "safefs": "^3.1.2",
-    "taskgroup": "^4.0.5",
-    "typechecker": "^2.0.8",
-    "extract-opts": "^2.2.0",
-    "ignorefs": "^1.0.0",
+    "ambi": "^2.5.0",
+    "eachr": "^3.2.0",
+    "extendr": "^3.2.2",
+    "safefs": "^4.1.0",
+    "taskgroup": "^5.0.1",
+    "typechecker": "^4.3.0",
+    "extract-opts": "^3.3.1",
+    "ignorefs": "^1.1.1",
     "scandirectory": "^2.5.0"
   },
   "devDependencies": {
-    "chai": "^1.10.0",
-    "coffee-script": "^1.9.0",
-    "joe": "^1.6.0",
+    "assert-helpers": "^4.4.0",
+    "coffee-script": "^1.11.0",
+    "coffeelint": "^1.15.7",
+    "joe": "^1.8.0",
     "joe-reporter-console": "^1.2.1",
-    "projectz": "^0.3.17",
-    "rimraf": "^2.2.8"
-  },
-  "directories": {
-    "lib": "./out/lib"
-  },
-  "scripts": {
-    "test": "node ./out/test/everything-test.js"
-  },
-  "main": "./out/lib/balutil",
-  "cakeConfiguration": {
-    "COFFEE_SRC_PATH": "src"
+    "projectz": "^1.2.0",
+    "rimraf": "^2.5.4"
   }
 }

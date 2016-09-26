@@ -1,5 +1,5 @@
 # Import
-{expect,assert} = require('chai')
+{equal} = require('assert-helpers')
 joe = require('joe')
 balUtil = require('../../')
 
@@ -49,7 +49,7 @@ joe.suite 'html', (suite,test) ->
 		replaceElementCallback = (outerHTML, elementNameMatched, attributes, innerHTML) ->
 			return innerHTML.toUpperCase()
 		actual = balUtil.replaceElement(source, "t(?:ext)?", replaceElementCallback)
-		assert.equal(expected, actual)
+		equal(expected, actual)
 
 	test 'replaceElementAsync', (done) ->
 		# Prepare
@@ -88,5 +88,5 @@ joe.suite 'html', (suite,test) ->
 				callback null, innerHTML.toUpperCase()
 		balUtil.replaceElementAsync source, "t(?:ext)?", replaceElementCallback, (err,actual) ->
 			return done(err)  if err
-			assert.equal(expected, actual)
+			equal(expected, actual)
 			done()

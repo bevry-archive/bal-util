@@ -4,7 +4,8 @@ eachr = require('eachr')
 typeChecker = require('typechecker')
 extendr = require('extendr')
 safefs = require('safefs')
-{extractOptsAndCallback} = require('extract-opts')
+{PassThrough} = require('stream')
+extractOpts = require('extract-opts')
 {TaskGroup} = require('taskgroup')
 balUtilFlow = require('./flow')
 ignorefs = require('ignorefs')
@@ -264,94 +265,65 @@ balUtilPaths =
 	# Reads a path be it local or remote
 	# next(err,data)
 	readPath: (filePath,opts,next) ->
-		[opts,next] = extractOptsAndCallback(opts,next)
+		[opts,next] = extractOpts(opts, next)
 
 		# Request
 		if /^http/.test(filePath)
-			# Prepare
-			data = ''
-			tasks = new TaskGroup().done (err) ->
-				return next(err)  if err
-				return next(null,data)
+			# Zlib
+			zlib = null
+			try
+				zlib = require('zlib')
+			catch err
+				# do nothing
 
-			# Request
+			# Options
 			requestOpts = require('url').parse(filePath)
 			requestOpts.path ?= requestOpts.pathname
 			requestOpts.method ?= 'GET'
 			requestOpts.headers ?= {}
+			requestOpts.headers['accept-encoding'] ?= 'gzip,deflate'  if zlib
 			requestOpts.headers['user-agent'] ?= 'Wget/1.14 (linux-gnu)'
 
-			# Import
+			# Prepare request
 			http = if requestOpts.protocol is 'https:' then require('https') else require('http')
-			zlib = null
-
-			# Gzip
-			try
-				zlib = require('zlib')
-				# requestOpts.headers['accept-encoding'] ?= 'gzip'
-				# do not prefer gzip, it is buggy
-			catch err
-				# do nothing
-
-			# Request
-			req = http.request requestOpts, (res) ->
-				# Listend
-				res.on 'data', (chunk) ->  tasks.addTask (complete) ->
-					if res.headers['content-encoding'] is 'gzip' and Buffer.isBuffer(chunk)
-						# Check
-						if zlib is null
-							err = new Error('Gzip encoding not supported on this environment')
-							return complete(err)
-						# Continue
-						zlib.unzip chunk, (err,chunk) ->
-							return complete(err)  if err
-							data += chunk
-							return complete()
-					else
-						data += chunk
-						return complete()
-
-				# Completed
-				res.on 'end', ->
-					# Redirect?
-					locationHeader = res.headers?.location or null
-					if locationHeader and locationHeader isnt requestOpts.href
-						# Follow the redirect
-						balUtilPaths.readPath locationHeader, (err,_data) ->
-							return tasks.exit(err)  if err
-							data = _data
-							return tasks.exit()
-					else
-						# All done
-						tasks.run()
-
-			# Timeout
+			req = http.request(requestOpts)
 			req.setTimeout ?= (delay) ->
-				setTimeout(
-					->
-						req.abort()
-						err = new Error('Request timed out')
-						tasks.exit(err)
-					delay
-				)
+				onTimeout = -> req.emit('error', new Error('request timed out'))
+				setTimeout(onTimeout, delay)  # alias for node <=0.9
 			req.setTimeout(opts.timeout ? 10*1000)  # 10 second timeout
+			req.once('error', next)
+			req.once('timeout', -> req.abort())  # must abort manually, will trigger error event
+			req.once 'response', (res) ->
+				locationHeader = res.headers?.location or null
+				if locationHeader and locationHeader isnt requestOpts.href
+					req.removeAllListeners()
+					balUtilPaths.readPath(locationHeader, opts, next)
+					return
 
-			# Listen
-			req
-				# do not put these on the same line, will cause problems
-				.on 'error', (err) ->
-					tasks.exit(err)
-				.on 'timeout', ->
-					req.abort()  # must abort manually, will trigger error event
+				chunks = []
+				res.on 'data', (chunk) ->
+					chunks.push(chunk)
 
-			# Start
+				res.once 'end', ->
+					data = new Buffer.concat(chunks)
+					switch res.headers['content-encoding']
+						when 'gzip'
+							zlib.unzip(data, next)
+							break
+						when 'deflate'
+							zlib.inflate(data, next)
+							break
+						else
+							next(null, data)
+
+			# End request, start response
 			req.end()
 
 		# Local
 		else
-			safefs.readFile filePath, (err,data) ->
+			safefs.readFile filePath, (err, data) ->
 				return next(err)  if err
-				return next(null,data)
+				return next(null, data)
 
 		# Chain
 		@

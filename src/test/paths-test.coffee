@@ -1,5 +1,7 @@
 # Import
-{expect,assert} = require('chai')
+{equal, deepEqual, errorEqual} = require('assert-helpers')
+{PassThrough} = require('stream')
+urlUtil = require('url')
 joe = require('joe')
 balUtil = require('../../')
 rimraf = require('rimraf')
@@ -47,7 +49,7 @@ joe.describe 'paths', (describe,it) ->
 	describe 'cleanup', (describe,it) ->
 		it 'should fail gracefully when the directory does not exist', (done) ->
 			rimraf outPath, (err) ->
-				assert.equal(err||null, null)
+				equal(err||null, null)
 				done()
 
 	# Test writetree
@@ -61,7 +63,7 @@ joe.describe 'paths', (describe,it) ->
 		it 'should write the files correctly', (done) ->
 			balUtil.scantree srcPath, (err,scantree) ->
 				return done(err)  if err
-				assert.deepEqual(scantree, writetree)
+				deepEqual(scantree, writetree)
 				done()
 
 	# Test cpdir
@@ -75,44 +77,83 @@ joe.describe 'paths', (describe,it) ->
 		it 'should write the files correctly', (done) ->
 			balUtil.scantree outPath, (err,scantree) ->
 				return done(err)  if err
-				assert.deepEqual(scantree,writetree)
+				deepEqual(scantree,writetree)
 				done()
 
 	# Test readPath
 	describe 'readPath', (describe,it) ->
-		timeoutServerAddress = "127.0.0.1"
-		timeoutServerPort = 9666
-		timeoutServer = null
+		serverAddress = "127.0.0.1"
+		serverPort = 9666
+		serverUrl = "http://#{serverAddress}:#{serverPort}"
+		server = null
 
 		# Normal
-		it 'should read normal paths', (done) ->
+		it 'should read local paths', (done) ->
 			balUtil.readPath __filename, (err,data) ->
 				return done(err)  if err
-				assert.ok(data?)
+				equal(data?, true, 'data exists')
 				return done()
 
-		# Should decode gzip
-		describe 'gzip', (describe,it) ->
-			it 'should read gzipped paths', (done) ->
-				balUtil.readPath 'https://api.stackexchange.com/2.2/users/130638?order=desc&sort=reputation&site=stackoverflow', (err,data) ->
-					# Check
-					if process.version.indexOf('v0.4') is 0
-						assert.ok(err?)
-						return done()
-
-					# Continue
-					return done(err)  if err
-					assert.ok(data?)
-					assert.equal(data[0],'{')
-					return done()
-
 		# Server
-		it 'should create our timeout server', ->
+		it 'should create our server', (done) ->
 			# Server
-			timeoutServer = require('http').createServer((req,res) ->
-				res.writeHead(200, {'Content-Type': 'text/plain'})
-			)
-			timeoutServer.listen(timeoutServerPort, timeoutServerAddress)
+			server = require('http').createServer (req,res) ->
+				file = urlUtil.parse(req.url).pathname
+				switch file
+					when '/timeout'
+						console.log('send timeout')
+						res.writeHead(200, {'Content-Type': 'text/plain'})
+						break
+					when '/respond'
+						console.log('send response')
+						res.writeHead(200, {'Content-Type': 'text/plain'})
+						res.end('alex')
+					when '/redirect'
+						console.log('send redirect')
+						res.writeHead(200, {'Content-Type': 'text/plain', 'Location': "#{serverUrl}/respond"})
+						res.end()
+					when '/zip'
+						console.log('send zip response')
+						input = new PassThrough()
+						input.end('bob')
+						acceptEncoding = req.headers['accept-encoding'] or ''
+						if acceptEncoding.match(/\bdeflate\b/)
+							res.writeHead(200, {'Content-Encoding': 'deflate'})
+							input.pipe(require('zlib').createDeflate()).pipe(res)
+						else if acceptEncoding.match(/\bgzip\b/)
+							res.writeHead(200, {'Content-Encoding': 'gzip'})
+							input.pipe(require('zlib').createGzip()).pipe(res)
+						else
+							res.writeHead(200, {})
+							input.pipe(res)
+					else
+						res.writeHead(404, {'Content-Type': 'text/plain'})
+						res.end('404 not found')
+			server.listen(serverPort, serverAddress, done)
+
+		# Success
+		it 'should read urls', (done) ->
+			balUtil.readPath "#{serverUrl}/respond", (err,data) ->
+				return done(err)  if err
+				equal(data.toString(), 'alex', 'response is as expected')
+				return done()
+
+		# Success redirect
+		it 'should handle redirects', (done) -># Check
+			balUtil.readPath "#{serverUrl}/redirect", (err,data) ->
+				return done(err)  if err
+				equal(data.toString(), 'alex', 'response is as expected')
+				return done()
+
+		# Success zip
+		it 'should read zip urls', (done) -># Check
+			if process.version.indexOf('v0.4') is 0
+				equal(err, 'gzip encoding not supported on this environment', 'error exists')
+				return done()
+			balUtil.readPath "#{serverUrl}/zip", (err,data) ->
+				return done(err)  if err
+				equal(data.toString(), 'bob', 'response is as expected')
+				return done()
 
 		# Timeout
 		it 'should timeout requests after a while of inactivity (10s)', (done) ->
@@ -123,17 +164,16 @@ joe.describe 'paths', (describe,it) ->
 			)
 			timeout = setTimeout(
 				->
-					assert.ok(false, 'timeout did not kick in')
+					equal(false, true, 'timeout did not kick in')
 					return done()
 				15*1000
 			)
-			balUtil.readPath "http://#{timeoutServerAddress}:#{timeoutServerPort}", (err,data) ->
+			balUtil.readPath "#{serverUrl}/timeout", (err,data) ->
 				clearInterval(interval)
 				clearTimeout(timeout)
-				assert.ok(err?, 'timeout executed correctly with error')
+				errorEqual(err, 'socket hang up', 'timeout executed correctly with error')
 				return done()
 
 		# Close Server
 		it 'should close the server', ->
-			timeoutServer.close()
-
+			server.close()

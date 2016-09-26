@@ -1,6 +1,6 @@
 # Tests
-require('./events-test')
-require('./flow-test')
-require('./html-test')
 require('./paths-test')
+require('./html-test')
+require('./flow-test')
+require('./events-test')
 require('./compare-test')
