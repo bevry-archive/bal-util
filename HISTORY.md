@@ -1,5 +1,9 @@
 # History
 
+## v2.7.0 2018 June 10
+- Updated base files using [boundation](https://github.com/bevry/boundation)
+- Compiled with CoffeeScript v2
+
 ## v2.6.0 2016 September 16
 - Rewrote `balUtilPaths.readPath` and added comprehensive tests for it
 - Updated dependencies

@@ -1,6 +1,6 @@
 <!-- TITLE/ -->
 
-<h1>[Benjamin Lupton's](https://balupton.com) Utility Functions</h1>
+<h1>Benjamin Lupton's Utility Functions</h1>
 
 <!-- /TITLE -->
 
@@ -43,7 +43,7 @@ Common utility functions for Node.js used and maintained by Benjamin Lupton
 <a href="http://browserify.org" title="Browserify lets you require('modules') in the browser by bundling up all of your dependencies"><h3>Browserify</h3></a><ul>
 <li>Install: <code>npm install --save bal-util</code></li>
 <li>Module: <code>require('bal-util')</code></li>
-<li>CDN URL: <code>//wzrd.in/bundle/bal-util@2.6.0</code></li></ul>
+<li>CDN URL: <code>//wzrd.in/bundle/bal-util@2.7.0</code></li></ul>
 
 <a href="http://enderjs.com" title="Ender is a full featured package manager for your browser"><h3>Ender</h3></a><ul>
 <li>Install: <code>ender add bal-util</code></li>
