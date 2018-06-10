@@ -1,7 +1,7 @@
 # Import
 {equal} = require('assert-helpers')
 joe = require('joe')
-balUtil = require('../../')
+balUtil = require('../')
 
 
 # =====================================

@@ -1,12 +1,17 @@
-# 2016 June 6
+# 2017 April 3
 # https://github.com/bevry/base
 
 # Temp Files
+yarn.lock
 **/.docpad.db
 **/out.*
 **/*.log
 **/*.cpuprofile
 **/*.heapsnapshot
+
+# Editor Files
+.c9/
+.vscode/
 
 # Build Files
 build/

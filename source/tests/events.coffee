@@ -1,7 +1,7 @@
 # Import
 {equal} = require('assert-helpers')
 joe = require('joe')
-{EventSystem} = require('../../')
+{EventSystem} = require('../')
 debug = false
 
 

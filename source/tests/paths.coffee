@@ -2,17 +2,17 @@
 {equal, deepEqual, errorEqual} = require('assert-helpers')
 {PassThrough} = require('stream')
 urlUtil = require('url')
-joe = require('joe')
-balUtil = require('../../')
 rimraf = require('rimraf')
+joe = require('joe')
+balUtil = require('../')
 
 
 # =====================================
 # Configuration
 
 # Test Data
-srcPath = __dirname+'/src'
-outPath = __dirname+'/out'
+srcPath = __dirname+'/../../test-fixtures/src'
+outPath = __dirname+'/../../test-fixtures/out'
 writetree =
 	'blog':
 		'post1.md': 'my post'
