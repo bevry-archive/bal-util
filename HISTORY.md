@@ -1,5 +1,9 @@
 # History
 
+## v2.8.0 2018 June 10
+- Removed the HTML utilities, as they are now extracted out
+- Updated base files
+
 ## v2.7.0 2018 June 10
 - Updated base files using [boundation](https://github.com/bevry/boundation)
 - Compiled with CoffeeScript v2

@@ -1,7 +1,7 @@
 {
   "title": "Benjamin Lupton's Utility Functions",
   "name": "bal-util",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "description": "Common utility functions for Node.js used and maintained by Benjamin Lupton",
   "homepage": "https://github.com/balupton/bal-util",
   "license": "MIT",
@@ -103,7 +103,7 @@
     }
   ],
   "main": "index.js",
-  "browser": "es5/lib/balutil.js",
+  "browser": "es2015/index.js",
   "dependencies": {
     "ambi": "^2.5.0",
     "eachr": "^3.2.0",

@@ -43,7 +43,7 @@ Common utility functions for Node.js used and maintained by Benjamin Lupton
 <a href="http://browserify.org" title="Browserify lets you require('modules') in the browser by bundling up all of your dependencies"><h3>Browserify</h3></a><ul>
 <li>Install: <code>npm install --save bal-util</code></li>
 <li>Module: <code>require('bal-util')</code></li>
-<li>CDN URL: <code>//wzrd.in/bundle/bal-util@2.7.0</code></li></ul>
+<li>CDN URL: <code>//wzrd.in/bundle/bal-util@2.8.0</code></li></ul>
 
 <a href="http://enderjs.com" title="Ender is a full featured package manager for your browser"><h3>Ender</h3></a><ul>
 <li>Install: <code>ender add bal-util</code></li>
@@ -73,6 +73,7 @@ We're working to breaking out every part of bal-util into their own modules, or 
 
 - [ambi](https://github.com/bevry/ambi) < `balUtilFlow.fireWithOptionalCallback`
 - [binaryextensions](https://github.com/bevry/binaryextensions) < `balUtilPaths.binaryExtensions`
+- [detect-indentation](https://github.com/bevry/detect-indentation) < `balUtilHTML.detectIndentation`
 - [eachr](https://github.com/bevry/eachr) < `balUtilFlow.each`
 - [event-emitter-grouped](https://github.com/bevry/event-emitter-grouped) < `balUtilEvents.EventEmitterEnhanced`
 - [extendr](https://github.com/bevry/extendr) < `balUtilFlow.(extend|clone|etc)`
@@ -81,13 +82,16 @@ We're working to breaking out every part of bal-util into their own modules, or 
 - [ignorefs](https://github.com/bevry/ignorefs) < `balUtilPaths.isIgnoredPath`
 - [ignorepatterns](https://github.com/bevry/ignorepatterns/blob/master/HISTORY.md) < `balUtilPaths.ignoreCommonPatterns`
 - [istextorbinary](https://github.com/bevry/istextorbinary) < `balUtilPaths.(isTextSync|isText|getEncodingSync|getEncoding)`
+- [remove-indentation](https://github.com/bevry/remove-indentation) < `balUtilHTML.removeIndentation`
 - [rimraf](https://github.com/isaacs/rimraf) < `balUtilPaths.rmdirDeep`
+- [ropo](https://github.com/bevry/ropo) < `balUtilHTML.(getAttribute|replaceElement|replaceElementAsync)`
 - [safecallback](https://github.com/bevry/safecallback) < `balUtilFlow.safeCallback`
 - [safefs](https://github.com/bevry/safefs) < `balUtilPaths.(openFile|closeFile|etc)`
 - [safeps](https://github.com/bevry/safeps) < `balUtilModules`
 - [scandirectory](https://github.com/bevry/scandirectory) < `balUtilPaths.scandir`
 - [taskgroup](https://github.com/bevry/taskgroup) < `balUtilFlow.Group`
 - [textextensions](https://github.com/bevry/textextensions) < `balUtilPaths.textExtensions`
+- [trim-indentation](https://github.com/bevry/trim-indentation) < `balUtilHTML.removeIndentation`
 - [typechecker](https://github.com/bevry/typechecker) < `balUtilTypes`
 
 
