@@ -71,6 +71,9 @@ Best off looking at source, it's well documented, and there are plenty of tests
 ## Abstraction
 We're working to breaking out every part of bal-util into their own modules, or to use existing modules where there is now a more abstract version. Below are the list of the following abstractions that have been made:
 
+- [@bevry/fs-*](https://github.com/orgs/bevry/repositories?language=&q=fs-&sort=&type=all) < `balUtilPaths.(openFile|closeFile|etc)`
+- [@bevry/fs-remove](https://github.com/bevry/fs-remove) < `balUtilPaths.rmdirDeep`
+- [@bevry/fs-tree](https://github.com/bevry/fs-tree) < `balUtilPaths.writetree`, `balUtilPaths.scandir`
 - [ambi](https://github.com/bevry/ambi) < `balUtilFlow.fireWithOptionalCallback`
 - [binaryextensions](https://github.com/bevry/binaryextensions) < `balUtilPaths.binaryExtensions`
 - [detect-indentation](https://github.com/bevry/detect-indentation) < `balUtilHTML.detectIndentation`
@@ -80,13 +83,11 @@ We're working to breaking out every part of bal-util into their own modules, or 
 - [extract-opts](https://github.com/bevry/extract-opts) < `balUtilFlow.extractOptsAndCallback`
 - [getsetdeep](https://github.com/bevry/getsetdeep) < `balUtilFlow.(get|set)Deep`
 - [ignorefs](https://github.com/bevry/ignorefs) < `balUtilPaths.isIgnoredPath`
-- [ignorepatterns](https://github.com/bevry/ignorepatterns/blob/master/HISTORY.md) < `balUtilPaths.ignoreCommonPatterns`
+- [ignorepatterns](https://github.com/bevry/ignorepatterns) < `balUtilPaths.ignoreCommonPatterns`
 - [istextorbinary](https://github.com/bevry/istextorbinary) < `balUtilPaths.(isTextSync|isText|getEncodingSync|getEncoding)`
 - [remove-indentation](https://github.com/bevry/remove-indentation) < `balUtilHTML.removeIndentation`
-- [rimraf](https://github.com/isaacs/rimraf) < `balUtilPaths.rmdirDeep`
 - [ropo](https://github.com/bevry/ropo) < `balUtilHTML.(getAttribute|replaceElement|replaceElementAsync)`
 - [safecallback](https://github.com/bevry/safecallback) < `balUtilFlow.safeCallback`
-- [safefs](https://github.com/bevry/safefs) < `balUtilPaths.(openFile|closeFile|etc)`
 - [safeps](https://github.com/bevry/safeps) < `balUtilModules`
 - [scandirectory](https://github.com/bevry/scandirectory) < `balUtilPaths.scandir`
 - [taskgroup](https://github.com/bevry/taskgroup) < `balUtilFlow.Group`
